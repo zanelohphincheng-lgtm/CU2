@@ -6,6 +6,13 @@
     <title>Modern Javascript Lesson</title>
 </head>
 <body>
-    <script src="immutable-variables.js"></script>
+    <button id="myButton">Click Me!</button>
+    <script src="import-export-callback/callback.js"></script>
+    <script>
+        const button = document.getElementById('myButton')
+        button.addEventListener('click', function handleClick(){
+            console.log("Button Was Clicked!!")
+        })
+    </script>
 </body>
 </html>
