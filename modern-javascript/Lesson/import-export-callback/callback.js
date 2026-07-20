@@ -2,7 +2,7 @@
 function greet(callback){
     console.log("Hello")
     // Over here, it's calling the argument as a function
-    callback()
+    callback(console.log("Hello again!")) // As same as a function
 }
 
 // Notice there's a function INSIDE the 'greet' function call
@@ -20,7 +20,7 @@ function noCallBackGreeting(name){
     console.log(`My name is ${name}`)
 }
 
-noCallBackGreeting("Paul")
+noCallBackGreeting("Paul") // This can be think as a "Fill in the blank" functionality
 
 // I want a function that does addition first, then squares the result and lastly console logs the squared results
 const calculateSum = (num1, num2, squareFunction) => {
