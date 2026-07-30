@@ -11,19 +11,19 @@ const Navigation = () => {
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         <li className="nav-item">
                             <NavLink className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")} to="/">
-                                <i class="bi bi-house-door-fill icon-style"></i>
+                                <i className="bi bi-house-door-fill icon-style"></i>
                                 All Notes
                             </NavLink>
                         </li>
                         <li className="nav-item">
                             <NavLink className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")} to="/addnote">
-                                <i class="bi bi-plus icon-style"></i>
+                                <i className="bi bi-plus icon-style"></i>
                                 Add Notes
                             </NavLink>
                         </li>
                         <li className="nav-item">
                             <NavLink className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")} to="/categories">
-                                <i class="bi bi-list-stars icon-style"></i>
+                                <i className="bi bi-list-stars icon-style"></i>
                                 Categories
                             </NavLink>
                         </li>

@@ -5,6 +5,7 @@ import Home from "./Home";
 import AddNotes from "./AddNotes";
 import Categories from "./Categories";
 import EditNote from "./EditNote";
+import EditCategory from "./EditCategory";
 import "./App.css"
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
                 <Route path="/addnote" element={<AddNotes />} />
                 <Route path="/n/:id" element={<EditNote />} />
                 <Route path="/categories" element={<Categories />} />
+                <Route path="/c/:id" element={<EditCategory />} />
             </Routes>
         </BrowserRouter>
     );

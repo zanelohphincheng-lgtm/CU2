@@ -1,41 +1,64 @@
+import { Link } from "react-router";
+import notes from "./Data/NotesData";
+import category from "./Data/CategoryData";
+
 const Home = () => {
     return (
-        <div className="home-container">
-            <h1>All Notes ()</h1>
+        <div className="container">
+            <h1>All Notes ({notes.length})</h1>
 
-            <div class="form-floating">
-                <select class="form-select" id="categorySelect">
+            <div className="form-floating my-3">
+                <select className="form-select" id="categorySelect">
                     <option value="all" selected>
                         All Categories
                     </option>
-                    <option value="personal">Personal</option>
-                    <option value="work">Work</option>
-                    <option value="ideas">Ideas</option>
+                    {category.map((categories) => (
+                        <option>{categories.label}</option>
+                    ))}
                 </select>
-                <label for="categorySelect">Category</label>
+                <label htmlFor="categorySelect">Category</label>
             </div>
 
-            <div class="form-floating">
-                <select class="form-select" id="sortSelect">
-                    <option value="updated" selected>Last Updated</option>
+            <div className="form-floating">
+                <select className="form-select" id="sortSelect">
+                    <option value="updated" selected>
+                        Last Updated
+                    </option>
                     <option value="title">Title</option>
                 </select>
-                <label for="sortSelect">Sort By</label>
+                <label htmlFor="sortSelect">Sort By</label>
             </div>
-            
-            <div className="card-style">
-                <button className="edit-button"><i className="bi bi-pencil text-primary">Edit</i></button>
-                <button className="delete-button"><i className="bi bi-trash text-danger">Delete</i></button>
-            </div>
+
+            {/* Note List Placeholder */}
+            {notes.map((note) => (
+                <div className="my-3">
+                    <div style={{ display: "flex", flexDirection: "row", gap: "15px" }}>
+                        <div style={{ border: "1px solid #ccc", padding: "15px", borderRadius: "5px" }}>
+                            <h3>{note.title}</h3>
+                            <p id="category-badge">{note.category}</p>
+                            <p className="text-muted">{note.time}</p>
+                            <Link to={`/n/${note.id}`}>
+                                <button className="edit-button">
+                                    <i className="bi bi-pencil text-primary">Edit</i>
+                                </button>
+                            </Link>
+                            <button className="delete-button">
+                                <i className="bi bi-trash text-danger">Delete</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ))}
 
             <div className="button-position">
-                <button className="add-button">
-                    <i className="bi bi-plus"></i>
-                </button>
+                <Link to={"/addnote"}>
+                    <button className="add-button">
+                        <i className="bi bi-plus"></i>
+                    </button>
+                </Link>
             </div>
-
         </div>
     );
 };
 
-export default Home
+export default Home;
