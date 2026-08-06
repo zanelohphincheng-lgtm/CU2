@@ -11,7 +11,7 @@ const MusicData = [
         rating: 5,
         explicit: false,
         isFavorite: false,
-        isPlaylist: 1,
+        
     },
     {
         id: 2,
@@ -25,7 +25,7 @@ const MusicData = [
         rating: 4,
         explicit: true,
         isFavorite: false,
-        isPlaylist: 1,
+        
     },
     {
         id: 3,
@@ -39,7 +39,7 @@ const MusicData = [
         rating: 4,
         explicit: false,
         isFavorite: false,
-        isPlaylist: 1,
+        
     },
     {
         id: 4,
@@ -53,7 +53,7 @@ const MusicData = [
         rating: 5,
         explicit: false,
         isFavorite: false,
-        isPlaylist: 1,
+        
     },
     {
         id: 5,
@@ -67,7 +67,7 @@ const MusicData = [
         rating: 3,
         explicit: false,
         isFavorite: false,
-        isPlaylist: 1,
+        
     },
     {
         id: 6,
@@ -81,7 +81,7 @@ const MusicData = [
         rating: 4,
         explicit: false,
         isFavorite: false,
-        isPlaylist: 1,
+        
     },
     {
         id: 7,
@@ -95,7 +95,7 @@ const MusicData = [
         rating: 5,
         explicit: false,
         isFavorite: false,
-        isPlaylist: 1,
+        
     },
 ];
 

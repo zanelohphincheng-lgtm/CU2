@@ -48,7 +48,7 @@ const NewPlaylist = ({ onCreatePlaylist }) => {
       name: formData.name.trim(),
       description: formData.description.trim(),
       visibility: formData.visibility,
-      tracks: [], // Initial empty array of track IDs or objects
+      tracksIds: [], // Initial empty array of track IDs or objects
     };
 
     onCreatePlaylist?.(newPlaylist);

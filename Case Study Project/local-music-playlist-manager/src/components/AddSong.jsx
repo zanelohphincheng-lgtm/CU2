@@ -1,8 +1,8 @@
-// src/components/AddSong.jsx
 import React, { useState } from "react";
 import { Box, Typography, TextField, FormControlLabel, Checkbox, Rating, Button, InputAdornment, Paper, Alert } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import AddIcon from "@mui/icons-material/Add";
+import ImageIcon from "@mui/icons-material/Image";
 
 const AddSong = ({ onAddTrack }) => {
     const [formData, setFormData] = useState({
@@ -25,11 +25,39 @@ const AddSong = ({ onAddTrack }) => {
         }));
     };
 
+    // Support Local File Uploads
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const objectUrl = URL.createObjectURL(file);
+            setFormData((prev) => ({
+                ...prev,
+                url: objectUrl,
+                title: prev.title || file.name.replace(/\.[^/.]+$/, ""),
+            }));
+        }
+    };
+
+    // Calculate Audio Duration Dynamically
+    const getAudioDuration = (src) => {
+        return new Promise((resolve) => {
+            const audio = new Audio(src);
+            audio.onloadedmetadata = () => {
+                const minutes = Math.floor(audio.duration / 60);
+                const seconds = Math.floor(audio.duration % 60)
+                    .toString()
+                    .padStart(2, "0");
+                resolve(`${minutes}:${seconds}`);
+            };
+            audio.onerror = () => resolve("3:30"); // Fallback duration if unreadable
+        });
+    };
+
     const handleRatingChange = (_, newValue) => {
         setFormData((prev) => ({ ...prev, rating: newValue || 0 }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess(false);
@@ -44,37 +72,33 @@ const AddSong = ({ onAddTrack }) => {
             return;
         }
 
-        // Simple URL validation
-        try {
-            new URL(formData.url);
-        } catch {
-            setError("Please provide a valid URL (e.g., https://example.com/audio.mp3).");
-            return;
-        }
+        const calculatedDuration = await getAudioDuration(formData.url.trim());
 
-        // Construct New Track Object
+        // Generate a random play count (e.g., between 1,000 and 5,000,000)
+        const randomPlays = Math.floor(Math.random() * 4999000 + 1000).toLocaleString();
+
         const newTrack = {
             id: Date.now(),
             title: formData.title.trim(),
             artist: formData.artist.trim() || "Unknown Artist",
             album: formData.album.trim() || "Single",
             url: formData.url.trim(),
+            cover: formData.cover.trim() || "", // Avatar component will fallback to first letter if empty
             explicit: formData.explicit,
             rating: formData.rating,
-            plays: "0",
-            duration: "--:--", // Will update when loaded in player
-            cover: "https://via.placeholder.com/40",
+            isFavorite: false,
+            plays: randomPlays,
+            duration: calculatedDuration,
         };
 
-        // Callback to parent/global state
         onAddTrack?.(newTrack);
 
-        // Reset Form & Show Success Message
         setFormData({
             title: "",
             artist: "",
             album: "",
             url: "",
+            cover: "",
             explicit: false,
             rating: 5,
         });
@@ -82,7 +106,7 @@ const AddSong = ({ onAddTrack }) => {
     };
 
     return (
-        <Box sx={{ display: "flex", justifyContent: "center", p: 2, mt:5, mb:7 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", p: 2, mt: 5, mb: 7 }}>
             <Paper
                 elevation={0}
                 component="form"
@@ -164,29 +188,54 @@ const AddSong = ({ onAddTrack }) => {
                         }}
                     />
 
-                    {/* Row 3: Audio Source URL */}
+                    {/* Row 3: Cover Art URL */}
                     <TextField
                         fullWidth
-                        placeholder="Audio Source URL"
-                        name="url"
-                        value={formData.url}
+                        placeholder="Cover Image URL (Optional)"
+                        name="cover"
+                        value={formData.cover}
                         onChange={handleChange}
-                        sx={{
-                            bgcolor: "#130C0E",
-                            borderRadius: 1,
-                            "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                            input: { color: "#FFF" },
-                        }}
+                        sx={{ bgcolor: "#130C0E", borderRadius: 1, "& .MuiOutlinedInput-notchedOutline": { border: "none" }, input: { color: "#FFF" } }}
                         slotProps={{
                             input: {
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <AttachFileIcon sx={{ color: "#9A9AB0" }} />
+                                        <ImageIcon sx={{ color: "#9A9AB0" }} />
                                     </InputAdornment>
                                 ),
                             },
                         }}
                     />
+
+                    {/* Row 4: Audio Source Input and File Picker */}
+                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                        <TextField
+                            fullWidth
+                            placeholder="Audio Source URL or pick Local File"
+                            name="url"
+                            value={formData.url}
+                            onChange={handleChange}
+                            sx={{
+                                bgcolor: "#130C0E",
+                                borderRadius: 1,
+                                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                                input: { color: "#FFF" },
+                            }}
+                            slotProps={{
+                                input: {
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <AttachFileIcon sx={{ color: "#9A9AB0" }} />
+                                        </InputAdornment>
+                                    ),
+                                },
+                            }}
+                        />
+                        <Button variant="outlined" component="label" sx={{ color: "#FF6B6B", borderColor: "#FF6B6B", whiteSpace: "nowrap", height: "56px" }}>
+                            Upload MP3
+                            <input type="file" accept="audio/*" hidden onChange={handleFileUpload} />
+                        </Button>
+                    </Box>
 
                     {/* Checkbox: Explicit Content */}
                     <FormControlLabel

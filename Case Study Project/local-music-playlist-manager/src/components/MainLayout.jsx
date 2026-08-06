@@ -23,12 +23,17 @@ const DRAWER_WIDTH = 220;
 const MUSIC_BAR_HEIGHT = 80;
 const NAVIGATION_HEIGHT = 64;
 
-const MainLayout = () => {
+const MainLayout = ({ playlists, currentTrack }) => {
     return (
         <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", bgcolor: "background.default" }}>
             <Navigation drawerWidth={DRAWER_WIDTH} height={NAVIGATION_HEIGHT} />
 
-            <Sidebar drawerWidth={DRAWER_WIDTH} navigationHeight={NAVIGATION_HEIGHT} musicBarHeight={MUSIC_BAR_HEIGHT} />
+            <Sidebar 
+                drawerWidth={DRAWER_WIDTH} 
+                navigationHeight={NAVIGATION_HEIGHT} 
+                musicBarHeight={MUSIC_BAR_HEIGHT}
+                playlists={playlists}
+            />
 
             {/* Main Content Area */}
             <Box
@@ -36,8 +41,6 @@ const MainLayout = () => {
                 sx={{
                     flexGrow: 1,
                     p: 3,
-                    // mt: `${NAVIGATION_HEIGHT}px`,
-                    // mb: `${MUSIC_BAR_HEIGHT}px`,
                     overflowY: "auto",
                     bgcolor: "background.default",
                 }}
@@ -46,7 +49,7 @@ const MainLayout = () => {
                 <Outlet />
             </Box>
 
-            <MusicBar drawerWidth={DRAWER_WIDTH} height={MUSIC_BAR_HEIGHT} />
+            <MusicBar drawerWidth={DRAWER_WIDTH} height={MUSIC_BAR_HEIGHT} currentTrack={currentTrack} />
         </Box>
     );
 };

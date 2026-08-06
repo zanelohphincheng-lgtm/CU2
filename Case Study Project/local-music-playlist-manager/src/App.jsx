@@ -32,97 +32,101 @@ const darkTheme = createTheme({
     },
 });
 
-const TRACKS_STORAGE_KEY = 'music_library_tracks';
-const PLAYLISTS_STORAGE_KEY = 'music_app_playlists';
+const TRACKS_STORAGE_KEY = "music_library_tracks";
+const PLAYLISTS_STORAGE_KEY = "music_app_playlists";
 
 const App = () => {
     // 1. Tracks State
-  const [tracks, setTracks] = useState(() => {
-    try {
-      const saved = localStorage.getItem(TRACKS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : MusicData;
-    } catch {
-      return MusicData;
-    }
-  });
-
-  // 2. Playlists State
-  const [playlists, setPlaylists] = useState(() => {
-    try {
-      const saved = localStorage.getItem(PLAYLISTS_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [{ id: 'playlist-1', name: 'Playlist 1', trackIds: [] }];
-    } catch {
-      return [{ id: 'playlist-1', name: 'Playlist 1', trackIds: [] }];
-    }
-  });
-
-  const [currentTrack, setCurrentTrack] = useState(null);
-
-  // Sync Tracks
-  useEffect(() => {
-    localStorage.setItem(TRACKS_STORAGE_KEY, JSON.stringify(tracks));
-  }, [tracks]);
-
-  // Sync Playlists
-  useEffect(() => {
-    localStorage.setItem(PLAYLISTS_STORAGE_KEY, JSON.stringify(playlists));
-  }, [playlists]);
-
-  // Track Handlers
-  const handleSelectTrack = (track) => setCurrentTrack(track);
-  const handleAddTrack = (newTrack) => setTracks((prev) => [newTrack, ...prev]);
-  const handleToggleFavorite = (targetTrack) => {
-    setTracks((prev) =>
-      prev.map((t) => (t.id === targetTrack.id ? { ...t, isFavorite: !t.isFavorite } : t))
-    );
-  };
-  const handleRatingChange = (trackId, newRating) => {
-    setTracks((prev) =>
-      prev.map((t) => (t.id === trackId ? { ...t, rating: newRating } : t))
-    );
-  };
-  const handleDeleteTrack = (trackId) => {
-    setTracks((prev) => prev.filter((t) => t.id !== trackId));
-    if (currentTrack?.id === trackId) setCurrentTrack(null);
-  };
-
-  // Playlist Handlers
-  const handleCreatePlaylist = (newPlaylist) => {
-    setPlaylists((prev) => [...prev, newPlaylist]);
-  };
-
-  const handleRenamePlaylist = (playlistId, newName) => {
-    setPlaylists((prev) =>
-      prev.map((p) => (p.id === playlistId ? { ...p, name: newName } : p))
-    );
-  };
-
-  const handleDeletePlaylist = (playlistId) => {
-    setPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
-  };
-
-  const handleAddTrackToPlaylist = (playlistId, trackId) => {
-    setPlaylists((prev) =>
-      prev.map((p) => {
-        if (p.id === playlistId) {
-          const exists = p.trackIds?.includes(trackId);
-          if (exists) return p;
-          return { ...p, trackIds: [...(p.trackIds || []), trackId] };
+    const [tracks, setTracks] = useState(() => {
+        try {
+            const saved = localStorage.getItem(TRACKS_STORAGE_KEY);
+            return saved ? JSON.parse(saved) : MusicData;
+        } catch {
+            return MusicData;
         }
-        return p;
-      })
-    );
-  };
+    });
 
-  const handleRemoveFromPlaylist = (playlistId, trackId) => {
-    setPlaylists((prev) =>
-      prev.map((p) =>
-        p.id === playlistId
-          ? { ...p, trackIds: p.trackIds.filter((id) => id !== trackId) }
-          : p
-      )
-    );
-  };
+    // 2. Playlists State
+    const [playlists, setPlaylists] = useState(() => {
+        try {
+            const saved = localStorage.getItem(PLAYLISTS_STORAGE_KEY);
+            return saved ? JSON.parse(saved) : [{ id: "playlist-1", name: "Playlist 1", trackIds: [] }];
+        } catch {
+            return [{ id: "playlist-1", name: "Playlist 1", trackIds: [] }];
+        }
+    });
+
+    const [currentTrack, setCurrentTrack] = useState(null);
+
+    // Sync Tracks
+    useEffect(() => {
+        localStorage.setItem(TRACKS_STORAGE_KEY, JSON.stringify(tracks));
+    }, [tracks]);
+
+    // Sync Playlists
+    useEffect(() => {
+        localStorage.setItem(PLAYLISTS_STORAGE_KEY, JSON.stringify(playlists));
+    }, [playlists]);
+
+    // Track Handlers
+    const handleSelectTrack = (track) => setCurrentTrack(track);
+    const handleAddTrack = (newTrack) => setTracks((prev) => [newTrack, ...prev]);
+    const handleToggleFavorite = (targetTrack) => {
+        setTracks((prev) => prev.map((t) => (t.id === targetTrack.id ? { ...t, isFavorite: !t.isFavorite } : t)));
+    };
+    const handleRatingChange = (trackId, newRating) => {
+        setTracks((prev) => prev.map((t) => (t.id === trackId ? { ...t, rating: newRating } : t)));
+    };
+    const handleDeleteTrack = (trackId) => {
+        setTracks((prev) => prev.filter((t) => t.id !== trackId));
+        if (currentTrack?.id === trackId) setCurrentTrack(null);
+    };
+
+    // Playlist Handlers
+    const handleCreatePlaylist = (newPlaylist) => {
+        setPlaylists((prev) => [...prev, newPlaylist]);
+    };
+
+    const handleRenamePlaylist = (playlistId, newName, newDescription, newVisibility) => {
+        setPlaylists((prev) =>
+            prev.map((p) =>
+                p.id === playlistId
+                    ? {
+                          ...p,
+                          name: newName,
+                          description: newDescription,
+                          visibility: newVisibility,
+                      }
+                    : p,
+            ),
+        );
+    };
+
+    const handleDeletePlaylist = (playlistId) => {
+        setPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
+    };
+
+    const handleAddTrackToPlaylist = (playlistId, trackId) => {
+        setPlaylists((prev) =>
+            prev.map((p) => {
+                if (p.id === playlistId) {
+                    const exists = p.trackIds?.includes(trackId);
+                    if (exists) return p;
+                    return { ...p, trackIds: [...(p.trackIds || []), trackId] };
+                }
+                return p;
+            }),
+        );
+    };
+
+    const handleRemoveFromPlaylist = (playlistId, trackId) => {
+        setPlaylists((prev) => prev.map((p) => (p.id === playlistId ? { ...p, trackIds: p.trackIds.filter((id) => id !== trackId) } : p)));
+    };
+
+    // Edit Music
+    const handleEditTrack = (updatedTrack) => {
+        setTracks((prev) => prev.map((t) => (t.id === updatedTrack.id ? updatedTrack : t)));
+    };
 
     return (
         <ThemeProvider theme={darkTheme}>
@@ -131,44 +135,56 @@ const App = () => {
             <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
                 {/* Your navigation routes */}
                 <Routes>
-                    <Route path="/" element={<MainLayout playlists={playlists} />}>
-                        <Route index element={<LibrarySite  
-                            tracks={tracks} 
-                            currentTrackId={currentTrack?.id}
-                            onSelectTrack={handleSelectTrack} 
-                            onDeleteTrack={handleDeleteTrack} 
-                            onToggleFavorite={handleToggleFavorite} 
-                            playlists={playlists}
-                            onAddToPlaylist={handleAddTrackToPlaylist} 
-                            onRatingChange={handleRatingChange}
-                        />} />
+                    <Route path="/" element={<MainLayout playlists={playlists} currentTrack={currentTrack} />}>
+                        <Route
+                            index
+                            element={
+                                <LibrarySite
+                                    tracks={tracks}
+                                    currentTrackId={currentTrack?.id}
+                                    onSelectTrack={handleSelectTrack}
+                                    onDeleteTrack={handleDeleteTrack}
+                                    onToggleFavorite={handleToggleFavorite}
+                                    playlists={playlists}
+                                    onAddToPlaylist={handleAddTrackToPlaylist}
+                                    onRatingChange={handleRatingChange}
+                                    onEditTrack={handleEditTrack}
+                                />
+                            }
+                        />
 
                         <Route
                             path="/top-rated"
-                            element={<TopRatedView 
-                                tracks={tracks} 
-                                currentTrackId={currentTrack?.id} 
-                                onSelectTrack={handleSelectTrack} 
-                                onDeleteTrack={handleDeleteTrack} 
-                                onToggleFavorite={handleToggleFavorite} 
-                                playlists={playlists}
-                                onAddToPlaylist={handleAddTrackToPlaylist}  
-                                onRatingChange={handleRatingChange} 
-                            />}
+                            element={
+                                <TopRatedView
+                                    tracks={tracks}
+                                    currentTrackId={currentTrack?.id}
+                                    onSelectTrack={handleSelectTrack}
+                                    onDeleteTrack={handleDeleteTrack}
+                                    onToggleFavorite={handleToggleFavorite}
+                                    playlists={playlists}
+                                    onAddToPlaylist={handleAddTrackToPlaylist}
+                                    onRatingChange={handleRatingChange}
+                                    onEditTrack={handleEditTrack}
+                                />
+                            }
                         />
 
                         <Route
                             path="/favorites"
-                            element={<Favorites 
-                                tracks={tracks} 
-                                currentTrackId={currentTrack?.id} 
-                                onSelectTrack={handleSelectTrack} 
-                                onDeleteTrack={handleDeleteTrack} 
-                                onToggleFavorite={handleToggleFavorite} 
-                                playlists={playlists}
-                                onAddToPlaylist={handleAddTrackToPlaylist}  
-                                onRatingChange={handleRatingChange} 
-                            />}
+                            element={
+                                <Favorites
+                                    tracks={tracks}
+                                    currentTrackId={currentTrack?.id}
+                                    onSelectTrack={handleSelectTrack}
+                                    onDeleteTrack={handleDeleteTrack}
+                                    onToggleFavorite={handleToggleFavorite}
+                                    playlists={playlists}
+                                    onAddToPlaylist={handleAddTrackToPlaylist}
+                                    onRatingChange={handleRatingChange}
+                                    onEditTrack={handleEditTrack}
+                                />
+                            }
                         />
 
                         <Route path="/add-song" element={<AddSong onAddTrack={handleAddTrack} />} />
@@ -185,6 +201,7 @@ const App = () => {
                                     onDeleteTrackFromLibrary={handleDeleteTrack}
                                     onToggleFavorite={handleToggleFavorite}
                                     onRemoveFromPlaylist={handleRemoveFromPlaylist}
+                                    onEditTrack={handleEditTrack}
                                 />
                             }
                         />

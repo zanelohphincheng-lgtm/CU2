@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link as RouterLink, useLocation } from 'react-router';
+import { Link as RouterLink, useLocation, NavLink } from 'react-router';
 import {
   Box,
   Drawer,
@@ -8,6 +8,7 @@ import {
   ListItemButton,
   ListItemText,
   Button,
+  Typography
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -56,7 +57,7 @@ const Sidebar = ({ drawerWidth, navigationHeight, musicBarHeight, playlists = []
             </ListItem>
           ))}
         </List>
-
+      <Typography sx={{fontSize: "20px", fontWeight: "bold",color: '#FF6B6B', pt: 3, borderTop: "1px solid #FF6B6B"}}>Playlist :</Typography>
         <List sx={{ flexGrow: 1, overflowY: 'auto' }}>
         {playlists.map((playlist) => (
           <ListItem key={playlist.id} disablePadding sx={{ mb: 0.5 }}>

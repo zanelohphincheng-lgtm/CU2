@@ -1,6 +1,7 @@
+// src/components/Playlist.jsx
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { Box, Typography, IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from "@mui/material";
+import { Box, Typography, IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Chip, Radio, RadioGroup, FormControlLabel, FormControl, FormLabel } from "@mui/material";
 
 // Icons
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
@@ -8,66 +9,93 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LibrarySite from "./LibrarySite";
 
-const Playlist = ({ playlists = [], tracks = [], onRenamePlaylist, onDeletePlaylist, onSelectTrack, onDeleteTrackFromLibrary, onToggleFavorite, onRemoveFromPlaylist }) => {
+const Playlist = ({ playlists = [], tracks = [], onRenamePlaylist, onDeletePlaylist, onSelectTrack, onDeleteTrackFromLibrary, onToggleFavorite, onAddToPlaylist,onRemoveFromPlaylist }) => {
     const { playlistId } = useParams();
     const navigate = useNavigate();
 
     // Find active playlist based on URL param
     const playlist = playlists.find((p) => p.id === playlistId) || playlists[0];
 
-    // Playlist Header Options Menu State
+    // Header Options Menu State
     const [headerAnchorEl, setHeaderAnchorEl] = useState(null);
-
-    // Rename Dialog State
-    const [isRenameOpen, setIsRenameOpen] = useState(false);
-    const [newPlaylistName, setNewPlaylistName] = useState("");
 
     if (!playlist) {
         return <Typography sx={{ color: "#9A9AB0", mt: 6, fontWeight: "Bold", fontSize: "30px" }}>Playlist not found.</Typography>;
     }
 
-    // Filter tracks that belong to this playlist
+    // Edit Details Dialog Handlers
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editName, setEditName] = useState("");
+    const [editDescription, setEditDescription] = useState("");
+    const [editVisibility, setEditVisibility] = useState("private");
+
+    if (!playlist) {
+        return <Typography sx={{ color: "#9A9AB0", mt: 6, fontWeight: "Bold", fontSize: "30px" }}>Playlist not found.</Typography>;
+    }
+
     const playlistTracks = tracks.filter((t) => playlist.trackIds?.includes(t.id));
 
     // Menu Handlers
     const handleOpenHeaderMenu = (event) => setHeaderAnchorEl(event.currentTarget);
     const handleCloseHeaderMenu = () => setHeaderAnchorEl(null);
 
-    // Rename Dialog Handlers
-    const handleOpenRename = () => {
-        setNewPlaylistName(playlist.name);
-        setIsRenameOpen(true);
+    // Edit Dialog Handlers
+    const handleOpenEdit = () => {
+        setEditName(playlist.name || "");
+        setEditDescription(playlist.description || "");
+        setEditVisibility(playlist.visibility || "private");
+        setIsEditOpen(true);
         handleCloseHeaderMenu();
     };
 
-    const handleSaveRename = () => {
-        if (newPlaylistName) {
-            onRenamePlaylist?.(playlist.id, newPlaylistName);
+    const handleSaveEdit = () => {
+        if (editName.trim()) {
+            onRenamePlaylist?.(playlist.id, editName.trim(), editDescription.trim(), editVisibility);
         }
-        setIsRenameOpen(false);
+        setIsEditOpen(false);
     };
 
-    // Delete Playlist Handler
     const handleDeletePlaylistClick = () => {
         onDeletePlaylist?.(playlist.id);
         handleCloseHeaderMenu();
-        navigate("/"); // Redirect to main library after deletion
+        navigate("/");
     };
 
+    const isPublic = playlist.visibility === "public";
     return (
         <Box sx={{ width: "100%", color: "#FFF" }}>
-            {/* Playlist Header with Context Menu */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3, mt: 6 }}>
+            {/* Playlist Header */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 6 }}>
                 <Typography variant="h3" sx={{ fontWeight: "bold" }}>
                     {playlist.name}
                 </Typography>
+
+                {/* Status Badge */}
+                <Chip
+                    label={isPublic ? "PUBLIC" : "PRIVATE"}
+                    size="small"
+                    sx={{
+                        bgcolor: isPublic ? "rgba(46, 125, 50, 0.3)" : "rgba(255, 107, 107, 0.15)",
+                        color: isPublic ? "#81C784" : "#6ba9ff",
+                        border: isPublic ? "1px solid #4CAF50" : "1px solid #6b72ff",
+                        fontWeight: "bold",
+                        fontSize: "0.75rem",
+                    }}
+                />
 
                 <IconButton onClick={handleOpenHeaderMenu} sx={{ color: "#FFF", "&:hover": { bgcolor: "#2B1417" } }}>
                     <MoreHorizIcon fontSize="large" />
                 </IconButton>
             </Box>
 
-            {/* Playlist Header Options Menu */}
+            {/* Playlist Description */}
+            {playlist.description && (
+                <Typography variant="h6" sx={{ color: "#d7d7d7", mt: 1, mb: 3 }}>
+                    {playlist.description}
+                </Typography>
+            )}
+
+            {/* Header Context Menu */}
             <Menu
                 anchorEl={headerAnchorEl}
                 open={Boolean(headerAnchorEl)}
@@ -85,11 +113,11 @@ const Playlist = ({ playlists = [], tracks = [], onRenamePlaylist, onDeletePlayl
                     },
                 }}
             >
-                <MenuItem onClick={handleOpenRename} sx={{ "&:hover": { bgcolor: "#3D1C20", color: "#FFF" } }}>
+                <MenuItem onClick={handleOpenEdit} sx={{ "&:hover": { bgcolor: "#3D1C20", color: "#FFF" } }}>
                     <ListItemIcon>
                         <EditIcon fontSize="small" sx={{ color: "#D0A9AC" }} />
                     </ListItemIcon>
-                    <ListItemText>Rename</ListItemText>
+                    <ListItemText>Edit Details</ListItemText>
                 </MenuItem>
 
                 <MenuItem onClick={handleDeletePlaylistClick} sx={{ "&:hover": { bgcolor: "#3D1C20", color: "#FF6B6B" } }}>
@@ -102,33 +130,65 @@ const Playlist = ({ playlists = [], tracks = [], onRenamePlaylist, onDeletePlayl
 
             {/* Tracks Table */}
             {playlistTracks.length === 0 ? (
-                <Typography sx={{ color: "#9A9AB0", mt: 2 }}>This playlist is empty. Add tracks using the options menu on any song!</Typography>
+                <Typography sx={{ color: "#9aacb0", mt: 2 }}>This playlist is empty. Add tracks using the options menu on any song!</Typography>
             ) : (
-                <LibrarySite tracks={playlistTracks} onSelectTrack={onSelectTrack} onDeleteTrack={onDeleteTrackFromLibrary} onToggleFavorite={onToggleFavorite} onRemoveFromPlaylist={(track) => onRemoveFromPlaylist?.(playlist.id, track.id)} />
+                <LibrarySite 
+                    tracks={playlistTracks} 
+                    playlists={playlists} 
+                    onSelectTrack={onSelectTrack} 
+                    onDeleteTrack={onDeleteTrackFromLibrary} 
+                    onToggleFavorite={onToggleFavorite} 
+                    onAddToPlaylist={onAddToPlaylist}
+                    onRemoveFromPlaylist={(track) => onRemoveFromPlaylist?.(playlist.id, track.id)} 
+                />
             )}
 
-            {/* Rename Dialog */}
-            <Dialog open={isRenameOpen} onClose={() => setIsRenameOpen(false)} slotProps={{ paper: { sx: { bgcolor: "#2B1417", color: "#FFF", minWidth: 320 } } }}>
-                <DialogTitle sx={{ fontWeight: "bold" }}>Rename Playlist</DialogTitle>
-                <DialogContent>
+            {/* Edit Playlist Details Dialog */}
+            <Dialog open={isEditOpen} onClose={() => setIsEditOpen(false)} slotProps={{ paper: { sx: { bgcolor: "#2B1417", color: "#FFF", minWidth: 360 } } }}>
+                <DialogTitle sx={{ fontWeight: "bold" }}>Edit Playlist Details</DialogTitle>
+                <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: 1 }}>
                     <TextField
+                        label="Playlist Name"
                         autoFocus
                         fullWidth
-                        value={newPlaylistName}
-                        onChange={(e) => setNewPlaylistName(e.target.value)}
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
                         sx={{
                             mt: 1,
                             bgcolor: "#130C0E",
                             borderRadius: 1,
                             input: { color: "#FFF" },
+                            label: { color: "#9A9AB0" },
                         }}
                     />
+                    <TextField
+                        label="Description"
+                        fullWidth
+                        multiline
+                        rows={3}
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        sx={{
+                            bgcolor: "#130C0E",
+                            borderRadius: 1,
+                            textarea: { color: "#FFF" },
+                            label: { color: "#9A9AB0" },
+                        }}
+                    />
+                    {/* Radio Options for Visibility */}
+                    <FormControl component="fieldset">
+                        <FormLabel sx={{ color: "#9A9AB0", fontWeight: "bold", fontSize: "0.9rem", mb: 0.5, "&.Mui-focused": { color: "#9A9AB0" } }}>Visibility</FormLabel>
+                        <RadioGroup row value={editVisibility} onChange={(e) => setEditVisibility(e.target.value)} sx={{ gap: 2 }}>
+                            <FormControlLabel value="private" control={<Radio sx={{ color: "#9A9AB0", "&.Mui-checked": { color: "#FF6B6B" } }} />} label={<Typography sx={{ color: "#FFF", fontSize: "0.9rem" }}>Private</Typography>} />
+                            <FormControlLabel value="public" control={<Radio sx={{ color: "#9A9AB0", "&.Mui-checked": { color: "#FF6B6B" } }} />} label={<Typography sx={{ color: "#FFF", fontSize: "0.9rem" }}>Public</Typography>} />
+                        </RadioGroup>
+                    </FormControl>
                 </DialogContent>
                 <DialogActions sx={{ p: 2 }}>
-                    <Button onClick={() => setIsRenameOpen(false)} sx={{ color: "#D0A9AC" }}>
+                    <Button onClick={() => setIsEditOpen(false)} sx={{ color: "#D0A9AC" }}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSaveRename} variant="contained" sx={{ bgcolor: "#FF6B6B" }}>
+                    <Button onClick={handleSaveEdit} variant="contained" sx={{ bgcolor: "#FF6B6B" }}>
                         Save
                     </Button>
                 </DialogActions>
@@ -137,4 +197,4 @@ const Playlist = ({ playlists = [], tracks = [], onRenamePlaylist, onDeletePlayl
     );
 };
 
-export default Playlist
+export default Playlist;
