@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router";
 import { ThemeProvider, createTheme, CssBaseline, Box } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 // Files
 import MainLayout from "./components/MainLayout";
@@ -128,6 +128,52 @@ const App = () => {
         setTracks((prev) => prev.map((t) => (t.id === updatedTrack.id ? updatedTrack : t)));
     };
 
+    // Search Bar And Sort Filter Functions
+    // State
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterOption, setFilterOption] = useState("all");
+    const [sortOption, setSortOption] = useState("title");
+
+    // Extract unique artists list for filter dropdown
+    const artistsList = useMemo(() => {
+        const set = new Set(tracks.map((t) => t.artist).filter(Boolean));
+        return Array.from(set);
+    }, [tracks]);
+
+    // Process tracks based on Search, Filter, and Sort criteria
+    const processedTracks = useMemo(() => {
+        return (
+            tracks
+                // 1. Search Query Filter
+                .filter((track) => {
+                    const query = searchQuery.toLowerCase();
+                    return track.title.toLowerCase().includes(query) || track.artist.toLowerCase().includes(query) || track.album.toLowerCase().includes(query);
+                })
+                // 2. Filter Dropdown
+                .filter((track) => {
+                    if (filterOption === "5-stars") return track.rating === 5;
+                    if (filterOption.startsWith("artist:")) {
+                        const selectedArtist = filterOption.replace("artist:", "");
+                        return track.artist === selectedArtist;
+                    }
+                    return true; // "all"
+                })
+                // 3. Sorting Logic
+                .sort((a, b) => {
+                    if (sortOption === "title") {
+                        return a.title.localeCompare(b.title); // A to Z
+                    }
+                    if (sortOption === "artist") {
+                        return a.artist.localeCompare(b.artist); // A to Z
+                    }
+                    if (sortOption === "rating") {
+                        return b.rating - a.rating; // Highest to Lowest
+                    }
+                    return 0;
+                })
+        );
+    }, [tracks, searchQuery, filterOption, sortOption]);
+
     return (
         <ThemeProvider theme={darkTheme}>
             {/* Resets browser CSS default margins/paddings to dark background */}
@@ -135,12 +181,27 @@ const App = () => {
             <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
                 {/* Your navigation routes */}
                 <Routes>
-                    <Route path="/" element={<MainLayout playlists={playlists} currentTrack={currentTrack} />}>
+                    <Route
+                        path="/"
+                        element={
+                            <MainLayout
+                                playlists={playlists}
+                                currentTrack={currentTrack}
+                                searchQuery={searchQuery}
+                                onSearchChange={setSearchQuery}
+                                filterOption={filterOption}
+                                setFilterOption={setFilterOption} // 👈 Connect state setter
+                                sortOption={sortOption}
+                                setSortOption={setSortOption} // 👈 Connect state setter
+                                artists={artistsList}
+                            />
+                        }
+                    >
                         <Route
                             index
                             element={
                                 <LibrarySite
-                                    tracks={tracks}
+                                    tracks={processedTracks}
                                     currentTrackId={currentTrack?.id}
                                     onSelectTrack={handleSelectTrack}
                                     onDeleteTrack={handleDeleteTrack}
@@ -157,7 +218,7 @@ const App = () => {
                             path="/top-rated"
                             element={
                                 <TopRatedView
-                                    tracks={tracks}
+                                    tracks={processedTracks}
                                     currentTrackId={currentTrack?.id}
                                     onSelectTrack={handleSelectTrack}
                                     onDeleteTrack={handleDeleteTrack}
@@ -174,7 +235,7 @@ const App = () => {
                             path="/favorites"
                             element={
                                 <Favorites
-                                    tracks={tracks}
+                                    tracks={processedTracks}
                                     currentTrackId={currentTrack?.id}
                                     onSelectTrack={handleSelectTrack}
                                     onDeleteTrack={handleDeleteTrack}

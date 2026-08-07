@@ -23,16 +23,26 @@ const DRAWER_WIDTH = 220;
 const MUSIC_BAR_HEIGHT = 80;
 const NAVIGATION_HEIGHT = 64;
 
-const MainLayout = ({ playlists, currentTrack }) => {
+const MainLayout = ({ playlists, currentTrack, searchQuery, onSearchChange, filterOption, setFilterOption, sortOption, setSortOption, artists }) => {
     return (
         <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", bgcolor: "background.default" }}>
-            <Navigation drawerWidth={DRAWER_WIDTH} height={NAVIGATION_HEIGHT} />
+            <Navigation 
+                drawerWidth={DRAWER_WIDTH} 
+                height={NAVIGATION_HEIGHT} 
+                searchQuery={searchQuery} 
+                onSearchChange={onSearchChange} 
+                filterOption={filterOption} 
+                onFilterChange={setFilterOption} 
+                sortOption={sortOption} 
+                onSortChange={setSortOption} 
+                artists={artists} 
+            />
 
             <Sidebar 
                 drawerWidth={DRAWER_WIDTH} 
-                navigationHeight={NAVIGATION_HEIGHT} 
-                musicBarHeight={MUSIC_BAR_HEIGHT}
-                playlists={playlists}
+                navigationHeight={NAVIGATION_HEIGHT}
+                musicBarHeight={MUSIC_BAR_HEIGHT} 
+                playlists={playlists} 
             />
 
             {/* Main Content Area */}

@@ -1,8 +1,18 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, TextField, MenuItem, Select, InputAdornment } from "@mui/material";
+import { AppBar, Toolbar, Typography, TextField, MenuItem, Select, InputAdornment, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
-const Navigation = ({ drawerWidth, height }) => {
+const Navigation = ({
+    drawerWidth,
+    height,
+    searchQuery,
+    onSearchChange,
+    filterOption = "all", // Having a default value
+    onFilterChange,
+    sortOption = "title", // Having a default value
+    onSortChange,
+    artists = [],
+}) => {
     return (
         <AppBar
             position="fixed"
@@ -19,36 +29,72 @@ const Navigation = ({ drawerWidth, height }) => {
                     LOGO???
                 </Typography>
 
+                {/* Search Field */}
                 <TextField
-                    size="small"
                     placeholder="Search tracks..."
+                    size="small"
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
                     sx={{
                         width: 300,
                         bgcolor: "#1E0D0F",
                         borderRadius: 1,
+                        input: { color: "#FFF" },
                         "& .MuiOutlinedInput-notchedOutline": { border: "none" },
                     }}
                     slotProps={{
                         input: {
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <SearchIcon sx={{ color: "text.primary" }} />
+                                    <SearchIcon sx={{ color: "#9A9AB0" }} />
                                 </InputAdornment>
                             ),
                         },
                     }}
                 />
 
-                <Select size="small" defaultValue="all" sx={{ bgcolor: "#1E0D0F", color: "white", minWidth: 120, "& fieldset": { border: "none" } }}>
-                    <MenuItem value="all">All Artists</MenuItem>
-                    <MenuItem value="5star">5 Stars Only</MenuItem>
-                </Select>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                    {/* Filter Dropdown */}
+                    <Select
+                        value={filterOption}
+                        onChange={(e) => onFilterChange?.(e.target.value)}
+                        size="small"
+                        sx={{
+                            bgcolor: "#1E0D0F",
+                            color: "#FFF",
+                            borderRadius: 1,
+                            "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                            "& .MuiSvgIcon-root": { color: "#FFF" },
+                        }}
+                    >
+                        <MenuItem value="all">All Songs</MenuItem>
+                        <MenuItem value="5-stars">5 Stars Only</MenuItem>
+                        {/* Every song added has their artist name pulled out */}
+                        {artists.map((artist) => (
+                            <MenuItem key={artist} value={`artist:${artist}`}>
+                                Artist: {artist}
+                            </MenuItem>
+                        ))}
+                    </Select>
 
-                <Select size="small" defaultValue="title" sx={{ bgcolor: "#1E0D0F", color: "white", minWidth: 120, "& fieldset": { border: "none" } }}>
-                    <MenuItem value="title">Sort by Title</MenuItem>
-                    <MenuItem value="artist">Sort by Artist</MenuItem>
-                    <MenuItem value="rating">Sort by Rating</MenuItem>
-                </Select>
+                    {/* Sort Dropdown */}
+                    <Select
+                        value={sortOption}
+                        onChange={(e) => onSortChange?.(e.target.value)}
+                        size="small"
+                        sx={{
+                            bgcolor: "#1E0D0F",
+                            color: "#FFF",
+                            borderRadius: 1,
+                            "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                            "& .MuiSvgIcon-root": { color: "#FFF" },
+                        }}
+                    >
+                        <MenuItem value="title">Sort by Title (A - Z)</MenuItem>
+                        <MenuItem value="artist">Sort by Artist (A - Z)</MenuItem>
+                        <MenuItem value="rating">Sort by Rating (Highest - Lowest)</MenuItem>
+                    </Select>
+                </Box>
             </Toolbar>
         </AppBar>
     );
